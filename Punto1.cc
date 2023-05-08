@@ -75,7 +75,7 @@ int main (int argc, char *argv[])
 
  //Ciclo los nodos y defino cual es TCP y cual es UDP
   for(uint32_t i=0; i< dumbbell.LeftCount(); i++) {
-    if(i==1) {
+    if(i==3 or i==6) {
         //Nodo con UDP
         AddressValue remoteAddressUDP(InetSocketAddress(dumbbell.GetRightIpv4Address(i), portUDP));
         onOffHelperUDP.SetAttribute("Remote", remoteAddressUDP);
