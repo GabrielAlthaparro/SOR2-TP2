@@ -34,7 +34,7 @@ int main (int argc, char *argv[])
 
   //PointToPoint router central
   PointToPointHelper pointToPointRouterCentral;
-  pointToPointRouterCentral.SetDeviceAttribute  ("DataRate", StringValue ("100Kbps")); //modificar para hacer cuello de botella
+  pointToPointRouterCentral.SetDeviceAttribute  ("DataRate", StringValue ("200Mbps"));
   pointToPointRouterCentral.SetChannelAttribute ("Delay", StringValue ("100ms"));
  
   //Creo un dumbbell topology con la libreria Helper de ns3
