@@ -7,6 +7,7 @@
 #include "ns3/point-to-point-layout-module.h"
 #include <iostream>
 
+using namespace std;
 using namespace ns3;
 
 NS_LOG_COMPONENT_DEFINE ("SOR2-dumbbell topology con TCP y UDP");
@@ -24,20 +25,20 @@ int main (int argc, char *argv[])
 
   //PointToPoint lado izquierdo
   PointToPointHelper pointToPointLeftLeaf;
-  pointToPointLeftLeaf.SetDeviceAttribute("DataRate", StringValue ("200Mbps"));
+  pointToPointLeftLeaf.SetDeviceAttribute("DataRate", StringValue ("200Kbps"));
   pointToPointLeftLeaf.SetChannelAttribute("Delay", StringValue ("100ms"));
   pointToPointLeftLeaf.SetQueue("ns3::DropTailQueue", "MaxSize", StringValue("5p")); //Reduzco tamaño maximo de recepcion
 
   //PointToPoint lado derecho
   PointToPointHelper pointToPointRightLeaf;
-  pointToPointRightLeaf.SetDeviceAttribute("DataRate", StringValue ("200Mbps"));
+  pointToPointRightLeaf.SetDeviceAttribute("DataRate", StringValue ("200Kbps"));
   pointToPointRightLeaf.SetChannelAttribute("Delay", StringValue ("100ms"));
   pointToPointRightLeaf.SetQueue("ns3::DropTailQueue", "MaxSize", StringValue("5p")); //Reduzco tamaño maximo de recepcion
 
   //PointToPoint router central
   PointToPointHelper pointToPointRouterCentral;
   //Reduzco el DataRate de los routers centrales para que sature el canal
-  pointToPointRouterCentral.SetDeviceAttribute  ("DataRate", StringValue ("200Kbps"));
+  pointToPointRouterCentral.SetDeviceAttribute  ("DataRate", StringValue ("20Kbps"));
   pointToPointRouterCentral.SetChannelAttribute ("Delay", StringValue ("100ms"));
   pointToPointRouterCentral.SetQueue("ns3::DropTailQueue", "MaxSize", StringValue("5p")); //Reduzco tamaño maximo de recepcion
  
@@ -77,25 +78,29 @@ int main (int argc, char *argv[])
   //Container de apps
   ApplicationContainer clientApps;
 
- //Ciclo los nodos y defino cual es TCP y cual es UDP
+  cout << "Valor de dumbbell.LeftCount(): " << dumbbell.LeftCount() << endl;
+
+  //Ciclo los nodos y defino cual es TCP y cual es UDP
   for(uint32_t i=0; i< dumbbell.LeftCount(); i++) {
-    /*if(i==3 or i==6) {
-        //Nodo con UDP
-        AddressValue remoteAddressUDP(InetSocketAddress(dumbbell.GetRightIpv4Address(i), portUDP));
-        onOffHelperUDP.SetAttribute("Remote", remoteAddressUDP);
-        clientApps.Add(onOffHelperUDP.Install(dumbbell.GetLeft (i)));
-        clientApps=sinkUDP.Install(dumbbell.GetRight(i));
-    }
-    else {*/
+    /*
+    if(i==1) {
+      //Nodo con UDP
+      AddressValue remoteAddressUDP(InetSocketAddress(dumbbell.GetRightIpv4Address(i), portUDP));
+      onOffHelperUDP.SetAttribute("Remote", remoteAddressUDP);
+      clientApps.Add(onOffHelperUDP.Install(dumbbell.GetLeft (i)));
+      clientApps=sinkUDP.Install(dumbbell.GetRight(i));
+    } else {
+    */
       //Nodo con TCP
       AddressValue remoteAddressTCP (InetSocketAddress(dumbbell.GetRightIpv4Address(i), portTCP));
       onOffHelperTCP.SetAttribute("Remote", remoteAddressTCP);
       clientApps.Add(onOffHelperTCP.Install(dumbbell.GetLeft(i)));
       clientApps=sinkTCP.Install(dumbbell.GetRight(i));
-    //}
+    /*
+    }
+    */
   }
 
- 
   //Start after sink y stop before sink
   clientApps.Start(Seconds(0.0));
   clientApps.Stop(Seconds(100.0));
@@ -111,6 +116,9 @@ int main (int argc, char *argv[])
  
   //Stop simulador
   Simulator::Stop(Seconds(100));
+
+  // crear archivos para analizar con wireshark
+  pointToPointRouterCentral.EnablePcapAll("punto_2"); //filename without .pcap extention
   
   //Run simulador
   Simulator::Run();

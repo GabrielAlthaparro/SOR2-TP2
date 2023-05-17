@@ -7,6 +7,7 @@
 #include "ns3/point-to-point-layout-module.h"
 #include <iostream>
 
+using namespace std;
 using namespace ns3;
 
 NS_LOG_COMPONENT_DEFINE ("SOR2-dumbbell topology con TCP y UDP");
@@ -24,17 +25,17 @@ int main (int argc, char *argv[])
 
   //PointToPoint lado izquierdo
   PointToPointHelper pointToPointLeftLeaf;
-  pointToPointLeftLeaf.SetDeviceAttribute("DataRate", StringValue ("200Mbps"));
+  pointToPointLeftLeaf.SetDeviceAttribute("DataRate", StringValue ("200Kbps"));
   pointToPointLeftLeaf.SetChannelAttribute("Delay", StringValue ("100ms"));
 
   //PointToPoint lado derecho
   PointToPointHelper pointToPointRightLeaf;
-  pointToPointRightLeaf.SetDeviceAttribute("DataRate", StringValue ("200Mbps"));
+  pointToPointRightLeaf.SetDeviceAttribute("DataRate", StringValue ("200Kbps"));
   pointToPointRightLeaf.SetChannelAttribute("Delay", StringValue ("100ms"));
 
   //PointToPoint router central
   PointToPointHelper pointToPointRouterCentral;
-  pointToPointRouterCentral.SetDeviceAttribute  ("DataRate", StringValue ("200Mbps"));
+  pointToPointRouterCentral.SetDeviceAttribute  ("DataRate", StringValue ("200Kbps"));
   pointToPointRouterCentral.SetChannelAttribute ("Delay", StringValue ("100ms"));
  
   //Creo un dumbbell topology con la libreria Helper de ns3
@@ -73,16 +74,17 @@ int main (int argc, char *argv[])
   //Container de apps
   ApplicationContainer clientApps;
 
- //Ciclo los nodos y defino cual es TCP y cual es UDP
+  cout << "Valor de dumbbell.LeftCount(): " << dumbbell.LeftCount() << endl;
+
+  //Ciclo los nodos de la izquierda y defino cual es TCP y cual es UDP
   for(uint32_t i=0; i< dumbbell.LeftCount(); i++) {
-    if(i==3 or i==6) {
-        //Nodo con UDP
-        AddressValue remoteAddressUDP(InetSocketAddress(dumbbell.GetRightIpv4Address(i), portUDP));
-        onOffHelperUDP.SetAttribute("Remote", remoteAddressUDP);
-        clientApps.Add(onOffHelperUDP.Install(dumbbell.GetLeft (i)));
-        clientApps=sinkUDP.Install(dumbbell.GetRight(i));
-    }
-    else {
+    if(i==1) {
+      //Nodo con UDP
+      AddressValue remoteAddressUDP(InetSocketAddress(dumbbell.GetRightIpv4Address(i), portUDP));
+      onOffHelperUDP.SetAttribute("Remote", remoteAddressUDP);
+      clientApps.Add(onOffHelperUDP.Install(dumbbell.GetLeft (i)));
+      clientApps=sinkUDP.Install(dumbbell.GetRight(i));
+    } else {
       //Nodo con TCP
       AddressValue remoteAddressTCP (InetSocketAddress(dumbbell.GetRightIpv4Address(i), portTCP));
       onOffHelperTCP.SetAttribute("Remote", remoteAddressTCP);
@@ -90,7 +92,6 @@ int main (int argc, char *argv[])
       clientApps=sinkTCP.Install(dumbbell.GetRight(i));
     }
   }
-
  
   //Start after sink y stop before sink
   clientApps.Start(Seconds(0.0));
@@ -100,7 +101,7 @@ int main (int argc, char *argv[])
   dumbbell.BoundingBox(1, 1, 100, 100);
 
   //Archivo XML para NetAnim
-  AnimationInterface anim("SOR2_dumbbell_topology_PUNTO_A.xml");
+  AnimationInterface anim("SOR2_dumbbell_topology_PUNTO_1.xml");
  
   //Configura la simulacion real
   Ipv4GlobalRoutingHelper::PopulateRoutingTables();
@@ -108,6 +109,7 @@ int main (int argc, char *argv[])
   //Stop simulador
   Simulator::Stop(Seconds(100));
   
+  pointToPointRouterCentral.EnablePcapAll("punto_1"); //filename without .pcap extention
   //Run simulador
   Simulator::Run();
 
