@@ -21,7 +21,7 @@ int main (int argc, char *argv[])
   uint32_t leftLeaf = 2;
 
   //Numero de nodos de hoja del lado derecho
-  uint32_t rightLeaf = 2;
+  uint32_t rightLeaf = 3;
 
   //PointToPoint lado izquierdo
   PointToPointHelper pointToPointLeftLeaf;
