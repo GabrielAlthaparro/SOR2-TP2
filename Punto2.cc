@@ -5,6 +5,7 @@
 #include "ns3/netanim-module.h"
 #include "ns3/network-module.h"
 #include "ns3/point-to-point-layout-module.h"
+#include "ns3/flow-monitor-helper.h"
 #include <iostream>
 
 using namespace std;
@@ -21,7 +22,7 @@ int main (int argc, char *argv[])
   uint32_t leftLeaf = 2;
 
   //Numero de nodos de hoja del lado derecho
-  uint32_t rightLeaf = 3;
+  uint32_t rightLeaf = 2;
 
   //PointToPoint lado izquierdo
   PointToPointHelper pointToPointLeftLeaf;
@@ -120,8 +121,19 @@ int main (int argc, char *argv[])
   // crear archivos para analizar con wireshark
   pointToPointRouterCentral.EnablePcapAll("punto_2"); //filename without .pcap extention
   
+
+  //Necesario para ver las estadisticas como paquetes perdidos
+  // Flow monitor
+  Ptr<FlowMonitor> flowMonitor;
+  FlowMonitorHelper flowHelper;
+  flowMonitor = flowHelper.InstallAll();
+
+
   //Run simulador
   Simulator::Run();
+
+  //Genero el xml para las estadisticas
+  flowMonitor->SerializeToXmlFile("FlowMonitor_dumbell.xml", true, true);
 
   //Destroy simulador
   Simulator::Destroy();
