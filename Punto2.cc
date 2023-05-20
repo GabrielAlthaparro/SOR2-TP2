@@ -13,6 +13,21 @@ using namespace ns3;
 
 NS_LOG_COMPONENT_DEFINE ("SOR2-dumbbell topology con TCP y UDP");
 
+
+//Funciones para tamaño de ventana
+void TraceCwnd (uint32_t node, uint32_t cwndWindow,
+            Callback <void, uint32_t, uint32_t> CwndTrace)
+{
+  Config::ConnectWithoutContext ("/NodeList/" + std::to_string (node) + "/$ns3::TcpL4Protocol/SocketList/" + std::to_string (cwndWindow) + "/CongestionWindow", CwndTrace);
+}
+
+static void CwndChange (Ptr<OutputStreamWrapper> stream, uint32_t oldCwnd, uint32_t newCwnd)
+{
+  //NS_LOG_UNCOND (Simulator::Now ().GetSeconds () << "\t" << newCwnd);
+  *stream->GetStream () << Simulator::Now ().GetSeconds () << "\t" << oldCwnd << std::endl;
+}
+
+
 int main (int argc, char *argv[])
 {
   //configuraciones general
@@ -120,7 +135,14 @@ int main (int argc, char *argv[])
 
   // crear archivos para analizar con wireshark
   pointToPointRouterCentral.EnablePcapAll("punto_2"); //filename without .pcap extention
+
+  //Stream para CWND
+  AsciiTraceHelper asciiTraceHelper;
+  Ptr<OutputStreamWrapper> stream = asciiTraceHelper.CreateFileStream("punto_2-cwnd.txt");
   
+  //Analisis sobre nodo 2 (Router con cuello de botella)
+  Simulator::Schedule(Seconds(0.00001), &TraceCwnd, 2, 0, MakeBoundCallback (&CwndChange,stream));
+
 
   //Necesario para ver las estadisticas como paquetes perdidos
   // Flow monitor
