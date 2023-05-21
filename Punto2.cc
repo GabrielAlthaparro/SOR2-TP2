@@ -41,20 +41,20 @@ int main (int argc, char *argv[])
 
   //PointToPoint lado izquierdo
   PointToPointHelper pointToPointLeftLeaf;
-  pointToPointLeftLeaf.SetDeviceAttribute("DataRate", StringValue ("200Kbps"));
+  pointToPointLeftLeaf.SetDeviceAttribute("DataRate", StringValue ("100Mbps"));
   pointToPointLeftLeaf.SetChannelAttribute("Delay", StringValue ("100ms"));
   pointToPointLeftLeaf.SetQueue("ns3::DropTailQueue", "MaxSize", StringValue("5p")); //Reduzco tamaño maximo de recepcion
 
   //PointToPoint lado derecho
   PointToPointHelper pointToPointRightLeaf;
-  pointToPointRightLeaf.SetDeviceAttribute("DataRate", StringValue ("200Kbps"));
+  pointToPointRightLeaf.SetDeviceAttribute("DataRate", StringValue ("100Mbps"));
   pointToPointRightLeaf.SetChannelAttribute("Delay", StringValue ("100ms"));
   pointToPointRightLeaf.SetQueue("ns3::DropTailQueue", "MaxSize", StringValue("5p")); //Reduzco tamaño maximo de recepcion
 
   //PointToPoint router central
   PointToPointHelper pointToPointRouterCentral;
   //Reduzco el DataRate de los routers centrales para que sature el canal
-  pointToPointRouterCentral.SetDeviceAttribute  ("DataRate", StringValue ("20Kbps"));
+  pointToPointRouterCentral.SetDeviceAttribute  ("DataRate", StringValue ("100Kbps"));
   pointToPointRouterCentral.SetChannelAttribute ("Delay", StringValue ("100ms"));
   pointToPointRouterCentral.SetQueue("ns3::DropTailQueue", "MaxSize", StringValue("5p")); //Reduzco tamaño maximo de recepcion
  
@@ -138,7 +138,7 @@ int main (int argc, char *argv[])
 
   //Stream para CWND
   AsciiTraceHelper asciiTraceHelper;
-  Ptr<OutputStreamWrapper> stream = asciiTraceHelper.CreateFileStream("punto_2-cwnd.txt");
+  Ptr<OutputStreamWrapper> stream = asciiTraceHelper.CreateFileStream("punto_2_nodo2_cwnd.txt");
   
   //Analisis sobre nodo 2 (Router con cuello de botella)
   Simulator::Schedule(Seconds(0.00001), &TraceCwnd, 2, 0, MakeBoundCallback (&CwndChange,stream));
